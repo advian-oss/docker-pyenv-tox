@@ -24,7 +24,7 @@ if __name__ == "__main__":
         distro, version = variant.split("-")
         dockerfile = f"Dockerfile_{distro}"
         for target in TARGETS:
-            buildcmd = ["docker", "build", "--target", target]
+            buildcmd = ["docker", "build", "--build-arg", f"IMAGE_VERSION={version}", "--target", target]
             for tag in ["", version]:
                 tagstr = f"{target}:{archname}-{distro}"
                 if tag:
