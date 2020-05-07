@@ -3,7 +3,8 @@
 ############################
 ARG IMAGE_VERSION=buster
 FROM debian:$IMAGE_VERSION-slim as pyenv_clean
-ENV CFLAGS='-O2'
+ENV CFLAGS='-O2' \
+    DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
