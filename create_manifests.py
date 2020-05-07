@@ -7,7 +7,7 @@ import itertools
 
 
 ARCHS = ["x86_64", "aarch64"]
-VARIANTS = ["alpine-3.11", "debian-buster"]
+VARIANTS = ["alpine-3.11", "debian-buster", "ubuntu-focal"]
 TARGETS = ["pyenv", "tox-base"]
 
 

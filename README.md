@@ -3,7 +3,8 @@
 Dockerfiles and helper scripts for multi-arch pyenv and tox on top of the pyenv images
 
 Alpine and Debian Buster(-slim) based variants (just in case you have something that chokes
-on musl-libc on alpine)
+on musl-libc on alpine). For weird corner cases there's also Ubuntu based image (in case there
+are some 3rd party binary only deps that don't work on the available debians)
 
 ## Using the tox-base image
 
@@ -17,7 +18,8 @@ run the image:
     docker build -t myproject:tox --target tox .
     docker run --rm -it -v `pwd`:/app myproject:tox
 
-If Alpine/musl-libc is a problem you can use `:debian` instead.
+If Alpine/musl-libc is a problem you can use `:debian` instead, if you really
+need some packages only available for Ubuntu there's `:ubuntu` too.
 
 ### Testing
 
