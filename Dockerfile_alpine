@@ -16,25 +16,36 @@ RUN apk add --no-cache \
         sqlite-dev tcl-dev tk tk-dev util-linux-dev xz-dev zlib-dev \
     && curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
     && echo 'export PATH="/root/.pyenv/bin:$PATH"' >> /root/.profile \
+    && echo 'eval "$(pyenv init -)"' >> /root/.profile \
     && true
 
 SHELL ["/bin/bash", "-lc"]
+ENTRYPOINT ["/bin/bash", "-lc"]
+
 
 ###########################
 # Prebuild given versions #
 ###########################
 FROM pyenv_clean as pyenv_prebuild
-ARG BUILD_PYTHON_VERSIONS="3.6.10 3.7.6 3.8.1"
+ARG BUILD_PYTHON_VERSIONS="3.8.1 3.7.6 3.6.10"
 
-RUN for pyver in $BUILD_PYTHON_VERSIONS; do pyenv install -v $pyver; done
+RUN for pyver in $BUILD_PYTHON_VERSIONS; do pyenv install $pyver; done \
+    && pyenv global $BUILD_PYTHON_VERSIONS
 
 ####################################
 # Pyenv shell with default version #
 ####################################
 FROM pyenv_prebuild as pyenv
-ENV DEFAULT_PYTHON="3.8.1"
-RUN pyenv global $DEFAULT_PYTHON \
-    && echo 'eval "$(pyenv init -)"' >> /root/.profile \
-    && true
-ENTRYPOINT ["/bin/bash", "-lc"]
 CMD ["python"]
+
+###############################
+# tox and poetry preinstalled #
+###############################
+FROM pyenv as tox-base
+COPY docker-entrypoint-tox.sh /
+RUN python -m pip install -U tox \
+    && python -m pip install -U poetry \
+    && true
+ONBUILD COPY . /app
+WORKDIR /app
+ENTRYPOINT ["/docker-entrypoint-tox.sh"]
