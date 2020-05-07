@@ -1,0 +1,40 @@
+############################
+# Pynv but no environments #
+############################
+ARG IMAGE_VERSION=3.11
+FROM alpine:$IMAGE_VERSION as pyenv_clean
+ENV CFLAGS='-O2'
+
+RUN apk add --no-cache \
+        curl \
+        git \
+        bash \
+        # PyEnv deps
+        bzip2-dev coreutils dpkg-dev dpkg expat-dev \
+        findutils gcc gdbm-dev libc-dev libffi-dev libnsl-dev libtirpc-dev \
+        linux-headers make ncurses-dev openssl-dev pax-utils readline-dev \
+        sqlite-dev tcl-dev tk tk-dev util-linux-dev xz-dev zlib-dev \
+    && curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
+    && echo 'export PATH="/root/.pyenv/bin:$PATH"' >> /root/.profile \
+    && true
+
+SHELL ["/bin/bash", "-lc"]
+
+###########################
+# Prebuild given versions #
+###########################
+FROM pyenv_clean as pyenv_prebuild
+ARG BUILD_PYTHON_VERSIONS="3.6.10 3.7.6 3.8.1"
+
+RUN for pyver in $BUILD_PYTHON_VERSIONS; do pyenv install -v $pyver; done
+
+####################################
+# Pyenv shell with default version #
+####################################
+FROM pyenv_prebuild as pyenv
+ENV DEFAULT_PYTHON="3.8.1"
+RUN pyenv global $DEFAULT_PYTHON \
+    && echo 'eval "$(pyenv init -)"' >> /root/.profile \
+    && true
+ENTRYPOINT ["/bin/bash", "-lc"]
+CMD ["python"]
