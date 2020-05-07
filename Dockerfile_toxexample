@@ -1,0 +1,2 @@
+# Example how to use the tox-base image
+FROM advian/tox-base:alpine as tox

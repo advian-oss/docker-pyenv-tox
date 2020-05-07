@@ -1,0 +1,9 @@
+[tool.poetry]
+name = "toxtest"
+version = "0.1.0"
+description = "Tox needs a python project"
+authors = ["Eero af Heurlin <eero.afheurlin@advian.fi>"]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

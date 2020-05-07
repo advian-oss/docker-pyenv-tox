@@ -5,7 +5,28 @@ Dockerfiles and helper scripts for multi-arch pyenv and tox on top of the pyenv 
 Alpine and Debian Buster(-slim) based variants (just in case you have something that chokes
 on musl-libc on alpine)
 
-### Building images
+## Using the tox-base image
+
+In your project Dockerfile just add a new target
+
+    FROM advian/tox-base:alpine as tox
+
+That alone is enough unless you have special needs, then you can build and
+run the image:
+
+    docker build -t myproject:tox --target tox .
+    docker run --rm -it -v `pwd`:/app myproject:tox
+
+If Alpine/musl-libc is a problem you can use `:debian` instead.
+
+### Testing
+
+This repo also has a minimal Python package and tox config for quick-testing
+
+    docker build -t toxtest --target tox -f Dockerfile_toxexample .
+    docker run --rm -it -v `pwd`:/app toxtest
+
+## Building images
 
 There's a helper script to generate the pile of commands needed for all tag versions
 
