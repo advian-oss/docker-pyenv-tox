@@ -1,0 +1,29 @@
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.4.0
+    hooks:
+        -   id: no-commit-to-branch
+        -   id: check-executables-have-shebangs
+        -   id: check-merge-conflict
+        -   id: check-toml
+        -   id: trailing-whitespace
+        -   id: end-of-file-fixer
+        -   id: check-yaml
+        -   id: check-added-large-files
+        -   id: check-case-conflict
+        -   id: check-json
+        -   id: check-merge-conflict
+        -   id: check-symlinks
+        -   id: pretty-format-json
+            args:
+                - --autofix
+-   repo: https://github.com/Lucas-C/pre-commit-hooks
+    rev: v1.1.7
+    hooks:
+        -   id: forbid-crlf
+        -   id: remove-crlf
+        -   id: forbid-tabs
+        -   id: remove-tabs
+-   repo: git://github.com/Lucas-C/pre-commit-hooks-markup
+    rev: v1.0.0
+    hooks:
+        -   id: rst-linter
