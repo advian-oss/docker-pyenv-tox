@@ -32,12 +32,36 @@ This repo also has a minimal Python package and tox config for quick-testing
 
 ## Building images
 
-There's a helper script to generate the pile of commands needed for all tag versions
+### Enable `buildx`
 
-    DHUBREPO=myrepo IMGARCH=`uname -m` ./create_builds.py
+On x86 Linux, the following _may_ be necessary to install `buildx`:
 
-This will give you the commands to build and tag images (also for pushing them to docker hub)
+    export DOCKER_BUILDKIT=1
+    docker build --platform=local -o . git://github.com/docker/buildx
+    mkdir -p ~/.docker/cli-plugins
+    mv buildx ~/.docker/cli-plugins/docker-buildx
 
-Then for multi-arh manifests are needed, time to call another helper
+### Enable `docker/binfmt`
 
-    DHUBREPO=myrepo ./create_manifests.py
+In order to be able to build images for foreign architectures, the `docker/binfmt`
+image should pulled and run. This will make [`qemu-user-static`](https://github.com/multiarch/qemu-user-static)
+available on the host:
+
+    docker run --rm --privileged docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64  # latest as of 2020-06-03
+
+### Create a "builder" instance
+
+    docker buildx create --name toxbuilder
+    docker buildx use toxbuilder
+    docker buildx inspect --bootstrap
+
+### Build and push
+
+    export DHUBREPO=myrepo
+    ./create_builds.py pyenv > pyenv.hcl
+    ./create_builds.py tox-base > tox-base.hcl
+    docker login
+    docker buildx bake --push --file ./pyenv.hcl
+    docker buildx bake --push --file ./tox-base.hcl
+
+The `create_builds.py` script output includes the Docker commands above as HCL file comments.

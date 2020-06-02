@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.1.7-experimental
 # Example how to use the tox-base image
 FROM advian/tox-base:alpine as tox
 #FROM advian/tox-base:debian as tox

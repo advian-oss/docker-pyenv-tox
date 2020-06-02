@@ -4,3 +4,5 @@ __pycache__
 .tox
 poetry.lock
 *.egg*
+.venv
+*.hcl

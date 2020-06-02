@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.1.7-experimental
 ############################
 # Pynv but no environments #
 ############################
