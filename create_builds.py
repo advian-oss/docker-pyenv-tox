@@ -1,44 +1,48 @@
 #!/usr/bin/env python3
-"""Create manifest commands"""
+"""Create buildx commands"""
 import os
 import sys
-import subprocess
-import itertools
 
-from create_manifests import VARIANTS, ARCHS, TARGETS
+PLATFORMS = ["linux/amd64", "linux/arm64"]
+TARGETS = ["pyenv", "tox-base"]
+VARIANTS = ["alpine-3.11", "debian-buster", "ubuntu-focal"]
+
 
 if __name__ == "__main__":
     reponame = os.environ.get("DHUBREPO")
     if not reponame:
         print("Define DHUBREPO")
         sys.exit(1)
-    archname = os.environ.get("IMGARCH")
-    if not archname:
-        print("Define IMGARCH")
-        if archname not in ARCHS:
-            print("IMGARCH must be one of {}".format(ARCHS))
+
+    if len(sys.argv) != 2 or not sys.argv[1] in TARGETS:
+        print(f"""Specify target, one of: {", ".join(TARGETS)}""")
         sys.exit(1)
-    build_commands = []
-    push_commands = [["docker", "login"]]
+    target = sys.argv[1]
+    distros = [variant.split("-")[0] for variant in VARIANTS]
+
+    hcl_targets = ""
     for variant in VARIANTS:
         distro, version = variant.split("-")
         dockerfile = f"Dockerfile_{distro}"
-        for target in TARGETS:
-            buildcmd = ["docker", "build", "--build-arg", f"IMAGE_VERSION={version}", "--target", target]
-            for tag in ["", version]:
-                tagstr = f"{target}:{archname}-{distro}"
-                if tag:
-                    tagstr += f"-{tag}"
-                repotag = reponame + "/" + tagstr
-                buildcmd += ["-t", tagstr, "-t", repotag]
-                push_commands.append(["docker", "push", repotag])
-            buildcmd += ["-f", dockerfile, "."]
-            build_commands.append(buildcmd)
+        hcl_targets += f"""
+target "{target}:{distro}" {{
+    dockerfile = "{dockerfile}"
+    platforms = [{", ".join(f'"{platform}"' for platform in PLATFORMS)}]
+    target = "{target}"
+    args = {{
+        IMAGE_VERSION = "{version}"
+    }}
+    tags = ["{reponame}/{target}:{distro}", "{reponame}/{target}:{distro}-{version}"]
+}}
+"""
 
-    if os.environ.get("AUTORUN"):
-        for cmd in itertools.chain(build_commands, push_commands):
-            subprocess.run(" ".join(cmd), check=True, shell=True)
-    else:
-        print("** Run the following commands:")
-        for cmd in itertools.chain(build_commands, push_commands):
-            print(" ".join(cmd))
+    print(f"""
+// To build and push images, redirect this output to a file named "{target}.hcl" and run:
+//
+// docker login
+// docker buildx bake --push --file ./{target}.hcl
+
+group "default" {{
+	targets = [{", ".join(f'"{target}:{distro}"' for distro in distros)}]
+}}""")
+    print(hcl_targets)
