@@ -2,11 +2,13 @@
 
 Dockerfiles and helper scripts for multi-arch pyenv and tox on top of the pyenv images
 
-Alpine and Debian Buster(-slim) based variants (just in case you have something that chokes
+Alpine and Debian Buster based variants (just in case you have something that chokes
 on musl-libc on alpine). For weird corner cases there's also Ubuntu based image (in case there
 are some 3rd party binary only deps that don't work on the available debians)
 
-Pre-built images for x64 and arm64 at <https://hub.docker.com/r/advian/pyenv>
+Pre-built images for x64 and arm64 at <https://hub.docker.com/r/advian/pyenv> and
+<https://hub.docker.com/r/advian/tox-base> which has tox preinstalled and is generally
+the recommended starting point.
 
 ## Using the tox-base image
 
@@ -47,7 +49,7 @@ In order to be able to build images for foreign architectures, the `docker/binfm
 image should pulled and run. This will make [`qemu-user-static`](https://github.com/multiarch/qemu-user-static)
 available on the host:
 
-    docker run --rm --privileged docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64  # latest as of 2020-06-03
+    docker run --rm --privileged docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64  # latest as of 2020-10-20
 
 ### Create a "builder" instance
 
