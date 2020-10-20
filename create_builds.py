@@ -5,7 +5,7 @@ import sys
 
 PLATFORMS = ["linux/amd64", "linux/arm64"]
 TARGETS = ["pyenv", "tox-base"]
-VARIANTS = ["alpine-3.11", "debian-buster", "ubuntu-focal"]
+VARIANTS = ["alpine-3.12", "debian-buster", "ubuntu-focal"]
 
 
 if __name__ == "__main__":
@@ -43,6 +43,6 @@ target "{target}:{distro}" {{
 // docker buildx bake --push --file ./{target}.hcl
 
 group "default" {{
-	targets = [{", ".join(f'"{target}:{distro}"' for distro in distros)}]
+    targets = [{", ".join(f'"{target}:{distro}"' for distro in distros)}]
 }}""")
     print(hcl_targets)
