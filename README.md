@@ -2,7 +2,7 @@
 
 Dockerfiles and helper scripts for multi-arch pyenv and tox on top of the pyenv images
 
-Alpine and Debian Buster(-slim) based variants (just in case you have something that chokes
+Alpine and Debian Buster based variants (just in case you have something that chokes
 on musl-libc on alpine). For weird corner cases there's also Ubuntu based image (in case there
 are some 3rd party binary only deps that don't work on the available debians)
 
