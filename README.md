@@ -6,7 +6,9 @@ Alpine and Debian Buster(-slim) based variants (just in case you have something 
 on musl-libc on alpine). For weird corner cases there's also Ubuntu based image (in case there
 are some 3rd party binary only deps that don't work on the available debians)
 
-Pre-built images for x64 and arm64 at <https://hub.docker.com/r/advian/pyenv>
+Pre-built images for x64 and arm64 at <https://hub.docker.com/r/advian/pyenv> and
+<https://hub.docker.com/r/advian/tox-base> which has tox preinstalled and is generally
+the recommended starting point.
 
 ## Using the tox-base image
 
