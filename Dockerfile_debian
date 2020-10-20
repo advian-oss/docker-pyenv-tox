@@ -16,8 +16,12 @@ RUN apt-get update \
        make \
        llvm \
        build-essential \
+       openssh-client \
        libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget \
        libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev \
+    # githublab ssh
+    && mkdir -p -m 0700 ~/.ssh && ssh-keyscan gitlab.com github.com | sort > ~/.ssh/known_hosts \
+    # install pyenv
     && curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
     && echo 'export PATH="/root/.pyenv/bin:$PATH"' >> /root/.profile \
     && echo 'eval "$(pyenv init -)"' >> /root/.profile \
