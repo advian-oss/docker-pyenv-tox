@@ -49,7 +49,7 @@ In order to be able to build images for foreign architectures, the `docker/binfm
 image should pulled and run. This will make [`qemu-user-static`](https://github.com/multiarch/qemu-user-static)
 available on the host:
 
-    docker run --rm --privileged docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64  # latest as of 2020-06-03
+    docker run --rm --privileged docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64  # latest as of 2020-10-20
 
 ### Create a "builder" instance
 
