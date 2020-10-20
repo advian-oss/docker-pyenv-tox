@@ -2,7 +2,7 @@
 ############################
 # Pynv but no environments #
 ############################
-ARG IMAGE_VERSION=3.11
+ARG IMAGE_VERSION=3.12
 FROM alpine:$IMAGE_VERSION as pyenv_clean
 ENV CFLAGS='-O2'
 
