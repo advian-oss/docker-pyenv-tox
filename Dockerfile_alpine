@@ -32,7 +32,7 @@ ENTRYPOINT ["/bin/bash", "-lc"]
 # Prebuild given versions #
 ###########################
 FROM pyenv_clean as pyenv_prebuild
-ARG BUILD_PYTHON_VERSIONS="3.9.0 3.8.1 3.7.6 3.6.10"
+ARG BUILD_PYTHON_VERSIONS="3.9.0 3.8.6 3.7.9 3.6.12"
 
 RUN for pyver in $BUILD_PYTHON_VERSIONS; do pyenv install $pyver; done \
     && pyenv global $BUILD_PYTHON_VERSIONS
@@ -49,7 +49,7 @@ CMD ["python"]
 FROM pyenv as tox-base
 COPY docker-entrypoint-tox.sh /
 RUN python -m pip install -U tox \
-    && python -m pip install -U poetry \
+    && curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 \
     && true
 ONBUILD COPY . /app
 WORKDIR /app
