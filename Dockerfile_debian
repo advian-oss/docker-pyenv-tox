@@ -19,6 +19,11 @@ RUN apt-get update \
        openssh-client \
        libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget \
        libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev \
+    # No recent enough Rust in Debian packages (2021-02-11)
+    && curl -o /tmp/rustup.sh --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+    && chmod +x /tmp/rustup.sh \
+    && /tmp/rustup.sh -y \
+    && echo 'source /root/.cargo/env' >> /root/.profile \
     # githublab ssh
     && mkdir -p -m 0700 ~/.ssh && ssh-keyscan gitlab.com github.com | sort > ~/.ssh/known_hosts \
     # install pyenv
@@ -35,7 +40,7 @@ ENTRYPOINT ["/bin/bash", "-lc"]
 # Prebuild given versions #
 ###########################
 FROM pyenv_clean as pyenv_prebuild
-ARG BUILD_PYTHON_VERSIONS="3.9.0 3.8.6 3.7.9 3.6.12"
+ARG BUILD_PYTHON_VERSIONS="3.9.1 3.8.7 3.7.9 3.6.12"
 
 RUN for pyver in $BUILD_PYTHON_VERSIONS; do pyenv install $pyver; done \
     && pyenv global $BUILD_PYTHON_VERSIONS

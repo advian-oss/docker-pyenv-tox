@@ -10,6 +10,7 @@ ENV CFLAGS='-O2' \
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        bash \
+       cargo \
        curl \
        ca-certificates \
        git-core \
@@ -35,7 +36,7 @@ ENTRYPOINT ["/bin/bash", "-lc"]
 # Prebuild given versions #
 ###########################
 FROM pyenv_clean as pyenv_prebuild
-ARG BUILD_PYTHON_VERSIONS="3.9.0 3.8.6 3.7.9 3.6.12"
+ARG BUILD_PYTHON_VERSIONS="3.9.1 3.8.7 3.7.9 3.6.12"
 
 RUN for pyver in $BUILD_PYTHON_VERSIONS; do pyenv install $pyver; done \
     && pyenv global $BUILD_PYTHON_VERSIONS
