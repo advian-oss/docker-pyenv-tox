@@ -17,6 +17,8 @@ RUN apk add --no-cache \
         findutils gcc gdbm-dev libc-dev libffi-dev libnsl-dev libtirpc-dev \
         linux-headers make ncurses-dev openssl-dev pax-utils readline-dev \
         sqlite-dev tcl-dev tk tk-dev util-linux-dev xz-dev zlib-dev \
+        # some extensions (like cryptography) now use rust instead of plain C/C++
+        cargo \
     # githublab ssh
     && mkdir -p -m 0700 ~/.ssh && ssh-keyscan gitlab.com github.com | sort > ~/.ssh/known_hosts \
     # install pyenv

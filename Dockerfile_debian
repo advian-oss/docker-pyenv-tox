@@ -19,6 +19,8 @@ RUN apt-get update \
        openssh-client \
        libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget \
        libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev \
+        # some extensions (like cryptography) now use rust instead of plain C/C++
+        cargo \
     # No recent enough Rust in Debian packages (2021-02-11)
     && curl -o /tmp/rustup.sh --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
     && chmod +x /tmp/rustup.sh \
