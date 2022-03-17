@@ -29,7 +29,7 @@ need some packages only available for Ubuntu there's `:ubuntu` too.
 
 This repo also has a minimal Python package and tox config for quick-testing
 
-    docker build -t toxtest --target tox -f Dockerfile_toxexample .
+    docker build --progress=plain -t toxtest --target tox -f Dockerfile_toxexample .
     docker run --rm -it -v `pwd`:/app toxtest
 
 ## Building images

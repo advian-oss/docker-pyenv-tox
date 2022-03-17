@@ -1,5 +1,15 @@
 # syntax=docker/dockerfile:1.1.7-experimental
 # Example how to use the tox-base image
 FROM advian/tox-base:alpine as tox
+ARG PYTHON_VERSIONS="3.10 3.9 3.8 3.7 3.6"
+ARG POETRY_VERSION="1.1.13"
 #FROM advian/tox-base:debian as tox
 #FROM advian/tox-base:ubuntu as tox
+RUN export RESOLVED_VERSIONS=`pyenv_resolve $PYTHON_VERSIONS` \
+    && echo RESOLVED_VERSIONS=$RESOLVED_VERSIONS \
+    && for pyver in $RESOLVED_VERSIONS; do pyenv install -s $pyver; done \
+    && pyenv global $RESOLVED_VERSIONS \
+    && poetry self update $POETRY_VERSION || pip install -U poetry==$POETRY_VERSION \
+    && pip install -U tox \
+    # If you need to install specific system libraries/tools (like git), do it here
+    && true
