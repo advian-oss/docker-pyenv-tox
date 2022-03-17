@@ -24,22 +24,32 @@ RUN apt-get update \
     && mkdir -p -m 0700 ~/.ssh && ssh-keyscan gitlab.com github.com | sort > ~/.ssh/known_hosts \
     # install pyenv
     && curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
-    && echo 'export PATH="/root/.pyenv/bin:$PATH"' >> /root/.profile \
-    && echo 'eval "$(pyenv init -)"' >> /root/.profile \
+    && echo 'export PATH="/root/.pyenv/bin:/root/.cargo/bin:$PATH"' >> /root/.profile \
+    && echo 'eval "$(pyenv init --path)"' >> /root/.profile \
     && true
 
 SHELL ["/bin/bash", "-lc"]
 ENTRYPOINT ["/bin/bash", "-lc"]
 
+##############################
+# Build the version resolver #
+##############################
+FROM pyenv_clean as pyenv_resolve_build
+COPY pyenv_resolve /build
+RUN cd /build \
+    && cargo build --release \
+    && cargo install --path . \
+    && true
 
 ###########################
 # Prebuild given versions #
 ###########################
 FROM pyenv_clean as pyenv_prebuild
-ARG BUILD_PYTHON_VERSIONS="3.10.3 3.9.10 3.8.13 3.7.13 3.6.15"
-
-RUN for pyver in $BUILD_PYTHON_VERSIONS; do pyenv install $pyver; done \
-    && pyenv global $BUILD_PYTHON_VERSIONS
+COPY --from=pyenv_resolve_build /root/.cargo /root/.cargo
+ARG BUILD_PYTHON_VERSIONS="3.10 3.9 3.8 3.7 3.6"
+RUN export RESOLVED_VERSIONS=`pyenv_resolve $BUILD_PYTHON_VERSIONS` \
+    && for pyver in $RESOLVED_VERSIONS; do pyenv install $pyver; done \
+    && pyenv global $RESOLVED_VERSIONS
 
 ####################################
 # Pyenv shell with default version #
