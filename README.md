@@ -36,12 +36,7 @@ This repo also has a minimal Python package and tox config for quick-testing
 
 ### Enable `buildx`
 
-On x86 Linux, the following _may_ be necessary to install `buildx`:
-
-    export DOCKER_BUILDKIT=1
-    docker build --platform=local -o . git://github.com/docker/buildx
-    mkdir -p ~/.docker/cli-plugins
-    mv buildx ~/.docker/cli-plugins/docker-buildx
+It should be available as part of standard Docker packages these days.
 
 ### Enable `docker/binfmt`
 
