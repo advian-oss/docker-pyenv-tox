@@ -1,0 +1,11 @@
+[package]
+name = "pyenv_resolve"
+version = "0.1.0"
+authors = ["Eero af Heurlin <eero.afheurlin@iki.fi>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+shellfn = "0.1.1"
+semver = "1.0.6"
