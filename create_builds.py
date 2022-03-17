@@ -2,10 +2,11 @@
 """Create buildx commands"""
 import os
 import sys
+import datetime
 
 PLATFORMS = ["linux/amd64", "linux/arm64"]
 TARGETS = ["pyenv", "tox-base"]
-VARIANTS = ["alpine-3.13", "debian-buster", "ubuntu-focal"]
+VARIANTS = ["alpine-3.15", "debian-buster", "ubuntu-focal"]
 
 
 if __name__ == "__main__":
@@ -22,6 +23,7 @@ if __name__ == "__main__":
 
     hcl_targets = ""
     for variant in VARIANTS:
+        isodate = datetime.datetime.utcnow().date().isoformat()
         distro, version = variant.split("-")
         dockerfile = f"Dockerfile_{distro}"
         hcl_targets += f"""
@@ -32,7 +34,7 @@ target "{target}:{distro}" {{
     args = {{
         IMAGE_VERSION = "{version}"
     }}
-    tags = ["{reponame}/{target}:{distro}", "{reponame}/{target}:{distro}-{version}"]
+    tags = ["{reponame}/{target}:{distro}", "{reponame}/{target}:{distro}-{isodate}", "{reponame}/{target}:{distro}-{version}", "{reponame}/{target}:{distro}-{version}-{isodate}"]
 }}
 """
 
