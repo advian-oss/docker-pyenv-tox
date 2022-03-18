@@ -107,6 +107,7 @@ fn main() {
         }
         resolved_versions.push(selected_ver);
     }
+    resolved_versions.reverse();
     let resolved_versions = resolved_versions;
     //println!("resolved_versions: {:?}", resolved_versions);
     for ver in resolved_versions {
