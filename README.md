@@ -29,19 +29,14 @@ need some packages only available for Ubuntu there's `:ubuntu` too.
 
 This repo also has a minimal Python package and tox config for quick-testing
 
-    docker build -t toxtest --target tox -f Dockerfile_toxexample .
+    docker build --progress=plain -t toxtest --target tox -f Dockerfile_toxexample .
     docker run --rm -it -v `pwd`:/app toxtest
 
 ## Building images
 
 ### Enable `buildx`
 
-On x86 Linux, the following _may_ be necessary to install `buildx`:
-
-    export DOCKER_BUILDKIT=1
-    docker build --platform=local -o . git://github.com/docker/buildx
-    mkdir -p ~/.docker/cli-plugins
-    mv buildx ~/.docker/cli-plugins/docker-buildx
+It should be available as part of standard Docker packages these days.
 
 ### Enable `docker/binfmt`
 

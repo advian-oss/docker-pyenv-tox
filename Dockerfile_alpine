@@ -2,7 +2,8 @@
 ############################
 # Pynv but no environments #
 ############################
-ARG IMAGE_VERSION=3.13
+# NOTE: If you change the image version change it also in create_builds.py
+ARG IMAGE_VERSION=3.15
 FROM alpine:$IMAGE_VERSION as pyenv_clean
 ENV CFLAGS='-O2'
 
@@ -13,7 +14,7 @@ RUN apk add --no-cache \
         bash \
         openssh-client \
         # PyEnv deps
-        bzip2-dev coreutils dpkg-dev dpkg expat-dev \
+        bzip2-dev coreutils dpkg-dev dpkg expat-dev patch \
         findutils gcc gdbm-dev libc-dev libffi-dev libnsl-dev libtirpc-dev \
         linux-headers make ncurses-dev openssl-dev pax-utils readline-dev \
         sqlite-dev tcl-dev tk tk-dev util-linux-dev xz-dev zlib-dev \
@@ -21,22 +22,33 @@ RUN apk add --no-cache \
     && mkdir -p -m 0700 ~/.ssh && ssh-keyscan gitlab.com github.com | sort > ~/.ssh/known_hosts \
     # install pyenv
     && curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
-    && echo 'export PATH="/root/.pyenv/bin:$PATH"' >> /root/.profile \
-    && echo 'eval "$(pyenv init -)"' >> /root/.profile \
+    && echo 'export PATH="/root/.pyenv/bin:/root/.cargo/bin:$PATH"' >> /root/.profile \
+    && echo 'eval "$(pyenv init --path)"' >> /root/.profile \
     && true
 
 SHELL ["/bin/bash", "-lc"]
 ENTRYPOINT ["/bin/bash", "-lc"]
 
+##############################
+# Build the version resolver #
+##############################
+FROM pyenv_clean as pyenv_resolve_build
+COPY pyenv_resolve /build
+RUN cd /build \
+    && cargo build --release \
+    && cargo install --path . \
+    && true
 
 ###########################
 # Prebuild given versions #
 ###########################
 FROM pyenv_clean as pyenv_prebuild
-ARG BUILD_PYTHON_VERSIONS="3.9.1 3.8.7 3.7.9 3.6.12"
-
-RUN for pyver in $BUILD_PYTHON_VERSIONS; do pyenv install $pyver; done \
-    && pyenv global $BUILD_PYTHON_VERSIONS
+COPY --from=pyenv_resolve_build /root/.cargo /root/.cargo
+ARG BUILD_PYTHON_VERSIONS="3.10 3.9 3.8 3.7 3.6"
+RUN export RESOLVED_VERSIONS=`pyenv_resolve $BUILD_PYTHON_VERSIONS` \
+    && echo RESOLVED_VERSIONS=$RESOLVED_VERSIONS \
+    && for pyver in $RESOLVED_VERSIONS; do pyenv install $pyver; done \
+    && pyenv global $RESOLVED_VERSIONS
 
 ####################################
 # Pyenv shell with default version #
@@ -50,7 +62,8 @@ CMD ["python"]
 FROM pyenv as tox-base
 COPY docker-entrypoint-tox.sh /
 RUN python -m pip install -U tox \
-    && curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 \
+    && curl -sSL https://install.python-poetry.org | python3 - \
+    && echo 'export PATH="/root/.local/bin:$PATH"' >> /root/.profile \
     && true
 ONBUILD COPY . /app
 WORKDIR /app

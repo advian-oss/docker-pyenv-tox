@@ -5,3 +5,7 @@
 __pycache__
 .pytest_cache
 *.egg*
+target
+.idea
+# Ignore dockerfiles so their minor changes do no invalidate ALL cache
+Dockerfile*
