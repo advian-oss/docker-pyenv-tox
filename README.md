@@ -38,17 +38,17 @@ This repo also has a minimal Python package and tox config for quick-testing
 
 It should be available as part of standard Docker packages these days.
 
-### Enable `docker/binfmt`
+### Enable `linuxkit/binfmt`
 
-In order to be able to build images for foreign architectures, the `docker/binfmt`
+In order to be able to build images for foreign architectures, the `linuxkit/binfmt`
 image should pulled and run. This will make [`qemu-user-static`](https://github.com/multiarch/qemu-user-static)
 available on the host:
 
-    docker run --rm --privileged docker/binfmt:a7996909642ee92942dcd6cff44b9b95f08dad64  # latest as of 2020-10-20
+    docker run --rm --privileged linuxkit/binfmt:bebbae0c1100ebf7bf2ad4dfb9dfd719cf0ef132  # latest as of 2022-11-15
 
-### Create a "builder" instance
+### Create/refresh a "builder" instance
 
-    docker buildx create --name toxbuilder
+    docker buildx rm toxbuilder ; docker buildx create --name toxbuilder --config `pwd`/buildkitd.toml
     docker buildx use toxbuilder
     docker buildx inspect --bootstrap
 

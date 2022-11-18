@@ -7,6 +7,13 @@ import datetime
 PLATFORMS = ["linux/amd64", "linux/arm64"]
 TARGETS = ["pyenv", "tox-base"]
 VARIANTS = ["alpine-3.15", "debian-buster", "ubuntu-focal"]
+VARIANTS += ["alpine-3.16", "debian-bullseye", "ubuntu-jammy"]
+# Which distro version gets the distro name tag
+DISTRO_DEFAULT_VERSIONS = {
+    "alpine": "3.16",
+    "debian": "bullseye",
+    "ubuntu": "jammy",
+}
 
 
 if __name__ == "__main__":
@@ -19,22 +26,24 @@ if __name__ == "__main__":
         print(f"""Specify target, one of: {", ".join(TARGETS)}""")
         sys.exit(1)
     target = sys.argv[1]
-    distros = [variant.split("-")[0] for variant in VARIANTS]
 
     hcl_targets = ""
     for variant in VARIANTS:
         isodate = datetime.datetime.utcnow().date().isoformat()
         distro, version = variant.split("-")
+        distrotag = ""
+        if version == DISTRO_DEFAULT_VERSIONS[distro]:
+            distrotag = f'"{reponame}/{target}:{distro}", '
         dockerfile = f"Dockerfile_{distro}"
         hcl_targets += f"""
-target "{target}:{distro}" {{
+target "{target}-{variant.replace(".","")}" {{
     dockerfile = "{dockerfile}"
     platforms = [{", ".join(f'"{platform}"' for platform in PLATFORMS)}]
     target = "{target}"
     args = {{
         IMAGE_VERSION = "{version}"
     }}
-    tags = ["{reponame}/{target}:{distro}", "{reponame}/{target}:{distro}-{isodate}", "{reponame}/{target}:{distro}-{version}", "{reponame}/{target}:{distro}-{version}-{isodate}"]
+    tags = [{distrotag}"{reponame}/{target}:{distro}-{isodate}", "{reponame}/{target}:{distro}-{version}", "{reponame}/{target}:{distro}-{version}-{isodate}"]
 }}
 """
 
@@ -45,6 +54,6 @@ target "{target}:{distro}" {{
 // docker buildx bake --push --file ./{target}.hcl
 
 group "default" {{
-    targets = [{", ".join(f'"{target}:{distro}"' for distro in distros)}]
+    targets = [{", ".join(f'"{target}-{variant.replace(".","")}"' for variant in VARIANTS)}]
 }}""")
     print(hcl_targets)
