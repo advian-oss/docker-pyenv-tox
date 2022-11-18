@@ -46,9 +46,9 @@ available on the host:
 
     docker run --rm --privileged linuxkit/binfmt:bebbae0c1100ebf7bf2ad4dfb9dfd719cf0ef132  # latest as of 2022-11-15
 
-### Create a "builder" instance
+### Create/refresh a "builder" instance
 
-    docker buildx create --name toxbuilder
+    docker buildx rm toxbuilder ; docker buildx create --name toxbuilder --config `pwd`/buildkitd.toml
     docker buildx use toxbuilder
     docker buildx inspect --bootstrap
 
