@@ -36,7 +36,7 @@ if __name__ == "__main__":
             distrotag = f'"{reponame}/{target}:{distro}", '
         dockerfile = f"Dockerfile_{distro}"
         hcl_targets += f"""
-target "{target}:{variant.replace(".","")}" {{
+target "{target}-{variant.replace(".","")}" {{
     dockerfile = "{dockerfile}"
     platforms = [{", ".join(f'"{platform}"' for platform in PLATFORMS)}]
     target = "{target}"
@@ -54,6 +54,6 @@ target "{target}:{variant.replace(".","")}" {{
 // docker buildx bake --push --file ./{target}.hcl
 
 group "default" {{
-    targets = [{", ".join(f'"{target}:{variant.replace(".","")}"' for variant in VARIANTS)}]
+    targets = [{", ".join(f'"{target}-{variant.replace(".","")}"' for variant in VARIANTS)}]
 }}""")
     print(hcl_targets)
