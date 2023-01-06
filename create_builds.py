@@ -33,7 +33,7 @@ if __name__ == "__main__":
         distro, version = variant.split("-")
         distrotag = ""
         if version == DISTRO_DEFAULT_VERSIONS[distro]:
-            distrotag = f'"{reponame}/{target}:{distro}", '
+            distrotag = f'"{reponame}/{target}:{distro}", "{reponame}/{target}:{distro}-{isodate}", '
         dockerfile = f"Dockerfile_{distro}"
         hcl_targets += f"""
 target "{target}-{variant.replace(".","")}" {{
@@ -43,7 +43,7 @@ target "{target}-{variant.replace(".","")}" {{
     args = {{
         IMAGE_VERSION = "{version}"
     }}
-    tags = [{distrotag}"{reponame}/{target}:{distro}-{isodate}", "{reponame}/{target}:{distro}-{version}", "{reponame}/{target}:{distro}-{version}-{isodate}"]
+    tags = [{distrotag}"{reponame}/{target}:{distro}-{version}", "{reponame}/{target}:{distro}-{version}-{isodate}"]
 }}
 """
 
