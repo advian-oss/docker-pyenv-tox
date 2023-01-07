@@ -6,11 +6,11 @@ import datetime
 
 PLATFORMS = ["linux/amd64", "linux/arm64"]
 TARGETS = ["pyenv", "tox-base"]
-VARIANTS = ["alpine-3.15", "debian-buster", "ubuntu-focal"]
-VARIANTS += ["alpine-3.16", "debian-bullseye", "ubuntu-jammy"]
+VARIANTS = ["alpine-3.16", "debian-buster", "ubuntu-focal"]
+VARIANTS += ["alpine-3.17", "debian-bullseye", "ubuntu-jammy"]
 # Which distro version gets the distro name tag
 DISTRO_DEFAULT_VERSIONS = {
-    "alpine": "3.16",
+    "alpine": "3.17",
     "debian": "bullseye",
     "ubuntu": "jammy",
 }
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         distro, version = variant.split("-")
         distrotag = ""
         if version == DISTRO_DEFAULT_VERSIONS[distro]:
-            distrotag = f'"{reponame}/{target}:{distro}", '
+            distrotag = f'"{reponame}/{target}:{distro}", "{reponame}/{target}:{distro}-{isodate}", '
         dockerfile = f"Dockerfile_{distro}"
         hcl_targets += f"""
 target "{target}-{variant.replace(".","")}" {{
@@ -43,7 +43,7 @@ target "{target}-{variant.replace(".","")}" {{
     args = {{
         IMAGE_VERSION = "{version}"
     }}
-    tags = [{distrotag}"{reponame}/{target}:{distro}-{isodate}", "{reponame}/{target}:{distro}-{version}", "{reponame}/{target}:{distro}-{version}-{isodate}"]
+    tags = [{distrotag}"{reponame}/{target}:{distro}-{version}", "{reponame}/{target}:{distro}-{version}-{isodate}"]
 }}
 """
 

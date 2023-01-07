@@ -5,27 +5,18 @@ description = "Tox needs a python project"
 authors = ["Eero af Heurlin <eero.afheurlin@advian.fi>", "Joni Kähärä <joni.kahara@advian.fi>"]
 
 [tool.poetry.dependencies]
-python = ">=3.6.2,<4.0"  # fresh black requires at least 3.6.2 so we can't use ^3.6
+python = "^3.8"
 
 [tool.poetry.dev-dependencies]
-pytest = [
-    { version = "^7.1", python="^3.7" },
-    { version = "^6.2", python="~3.6" }
-]
-coverage = [
-    { version = "^6.3", extras = ["toml"], python="^3.7" },
-    { version = "^5.4", extras = ["toml"], python="~3.6" }
-]
+pytest = "^7.1"
+coverage = { version = "^6.3", extras = ["toml"] }
 pytest-cov = "^3.0"
 pylint = "^2.12"
 black = "^22.1"
 bandit = "^1.7"
 mypy = "^0.941"
 pre-commit = "^2.17"
-pytest-asyncio = [
-    { version="^0.18", python="^3.7" },
-    { version="^0.14", python="~3.6" }
-]
+pytest-asyncio = "^0.18"
 bump2version = "^1.0"
 
 [build-system]
