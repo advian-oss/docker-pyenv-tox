@@ -24,12 +24,12 @@ RUN apt-get update \
     && curl -o /tmp/rustup.sh --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
     && chmod +x /tmp/rustup.sh \
     && /tmp/rustup.sh -y \
-    && echo 'source /root/.cargo/env' >> /root/.profile \
+    && echo 'source "$HOME/.cargo/env"' >> /root/.profile \
     # githublab ssh
     && mkdir -p -m 0700 ~/.ssh && ssh-keyscan gitlab.com github.com | sort > ~/.ssh/known_hosts \
     # install pyenv
     && curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
-    && echo 'export PATH="/root/.pyenv/bin:/root/.cargo/bin:$PATH"' >> /root/.profile \
+    && echo 'export PATH="/root/.pyenv/bin:$HOME/.cargo/bin:$PATH"' >> /root/.profile \
     && echo 'eval "$(pyenv init --path)"' >> /root/.profile \
     && true
 
