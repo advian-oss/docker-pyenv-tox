@@ -21,6 +21,20 @@ bump2version = "^1.0"
 detect-secrets = "^1.4"
 types-toml = ">=0.10,<1.0"  # caret behaviour on 0.x is to lock to 0.x.*
 
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.design]
+max-parents = 10
+
+[tool.pylint.messages_control]
+disable=["fixme", "W1202", "C0209"]
+
+[tool.pylint.similarities]
+min-similarity-lines = 8
+ignore-imports = true
+
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
