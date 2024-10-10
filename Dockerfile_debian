@@ -3,7 +3,7 @@
 # Pynv but no environments #
 ############################
 # NOTE: If you change the image version change it also in create_builds.py
-ARG IMAGE_VERSION=buster
+ARG IMAGE_VERSION=bookworm
 FROM debian:$IMAGE_VERSION-slim as pyenv_clean
 ENV CFLAGS='-O2' \
     DEBIAN_FRONTEND=noninteractive
