@@ -47,7 +47,8 @@ target "{target}-{variant.replace(".","")}" {{
 }}
 """
 
-    print(f"""
+    print(
+        f"""
 // To build and push images, redirect this output to a file named "{target}.hcl" and run:
 //
 // docker login
@@ -55,5 +56,6 @@ target "{target}-{variant.replace(".","")}" {{
 
 group "default" {{
     targets = [{", ".join(f'"{target}-{variant.replace(".","")}"' for variant in VARIANTS)}]
-}}""")
+}}"""
+    )
     print(hcl_targets)

@@ -1,4 +1,5 @@
 """Minimal test for testing test-runner"""
+
 from toxtest import __version__
 
 
