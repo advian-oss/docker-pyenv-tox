@@ -34,8 +34,8 @@ jobs:
 
       - name: Bake pyenv
         run: |
-          docker buildx bake --push --file ./pyenv.hcl
+          docker buildx bake --pull --push --file ./pyenv.hcl
 
       - name: Bake tox
         run: |
-          docker buildx bake --push --file ./tox-base.hcl
+          docker buildx bake --pull --push --file ./tox-base.hcl
