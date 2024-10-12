@@ -3,7 +3,7 @@
 # Pynv but no environments #
 ############################
 # NOTE: If you change the image version change it also in create_builds.py
-ARG IMAGE_VERSION=3.15
+ARG IMAGE_VERSION=3.20
 FROM alpine:$IMAGE_VERSION as pyenv_clean
 ENV CFLAGS='-O2'
 
@@ -44,7 +44,7 @@ RUN cd /build \
 ###########################
 FROM pyenv_clean as pyenv_prebuild
 COPY --from=pyenv_resolve_build /root/.cargo /root/.cargo
-ARG BUILD_PYTHON_VERSIONS="3.11 3.10 3.9 3.8"
+ARG BUILD_PYTHON_VERSIONS="3.11 3.12 3.13 3.10 3.9"
 RUN export RESOLVED_VERSIONS=`pyenv_resolve $BUILD_PYTHON_VERSIONS` \
     && echo RESOLVED_VERSIONS=$RESOLVED_VERSIONS \
     && for pyver in $RESOLVED_VERSIONS; do pyenv install $pyver; done \

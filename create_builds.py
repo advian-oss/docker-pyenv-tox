@@ -6,27 +6,18 @@ import datetime
 
 PLATFORMS = ["linux/amd64", "linux/arm64"]
 TARGETS = ["pyenv", "tox-base"]
-VARIANTS = ["alpine-3.18", "debian-bullseye", "ubuntu-focal"]
-VARIANTS += ["alpine-3.19", "debian-bookworm", "ubuntu-jammy"]
+VARIANTS = ["alpine-3.19", "debian-bullseye", "ubuntu-jammy"]
+VARIANTS += ["alpine-3.20", "debian-bookworm", "ubuntu-noble"]
 # Which distro version gets the distro name tag
 DISTRO_DEFAULT_VERSIONS = {
-    "alpine": "3.19",
+    "alpine": "3.20",
     "debian": "bookworm",
-    "ubuntu": "jammy",
+    "ubuntu": "noble",
 }
 
 
-if __name__ == "__main__":
-    reponame = os.environ.get("DHUBREPO")
-    if not reponame:
-        print("Define DHUBREPO")
-        sys.exit(1)
-
-    if len(sys.argv) != 2 or not sys.argv[1] in TARGETS:
-        print(f"""Specify target, one of: {", ".join(TARGETS)}""")
-        sys.exit(1)
-    target = sys.argv[1]
-
+def print_bakefile(reponame: str, target: str) -> None:
+    """Print the bakefile"""
     hcl_targets = ""
     for variant in VARIANTS:
         isodate = datetime.datetime.utcnow().date().isoformat()
@@ -47,7 +38,8 @@ target "{target}-{variant.replace(".","")}" {{
 }}
 """
 
-    print(f"""
+    print(
+        f"""
 // To build and push images, redirect this output to a file named "{target}.hcl" and run:
 //
 // docker login
@@ -55,5 +47,19 @@ target "{target}-{variant.replace(".","")}" {{
 
 group "default" {{
     targets = [{", ".join(f'"{target}-{variant.replace(".","")}"' for variant in VARIANTS)}]
-}}""")
+}}"""
+    )
     print(hcl_targets)
+
+
+if __name__ == "__main__":
+    envreponame = os.environ.get("DHUBREPO")
+    if not envreponame:
+        print("Define DHUBREPO")
+        sys.exit(1)
+
+    if len(sys.argv) != 2 or not sys.argv[1] in TARGETS:
+        print(f"""Specify target, one of: {", ".join(TARGETS)}""")
+        sys.exit(1)
+    clitarget = sys.argv[1]
+    print_bakefile(envreponame, clitarget)

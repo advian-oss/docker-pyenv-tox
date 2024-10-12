@@ -5,19 +5,35 @@ description = "Tox needs a python project"
 authors = ["Eero af Heurlin <eero.afheurlin@advian.fi>", "Joni Kähärä <joni.kahara@advian.fi>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 
-[tool.poetry.dev-dependencies]
-pytest = "^7.1"
-coverage = { version = "^6.3", extras = ["toml"] }
-pytest-cov = "^3.0"
-pylint = "^2.12"
-black = "^22.1"
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+coverage = "^7.4"
+pytest-cov = "^4.1"
+pylint = "^3.0"
+black = "^24.1"
 bandit = "^1.7"
-mypy = "^0.941"
-pre-commit = "^2.17"
-pytest-asyncio = "^0.18"
+mypy = "^1.8"
+pre-commit = "^3.6"
+pytest-asyncio = ">=0.21,<1.0" # caret behaviour on 0.x is to lock to 0.x.*
 bump2version = "^1.0"
+detect-secrets = "^1.4"
+types-toml = ">=0.10,<1.0"  # caret behaviour on 0.x is to lock to 0.x.*
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.design]
+max-parents = 10
+
+[tool.pylint.messages_control]
+disable=["fixme", "W1202", "C0209"]
+
+[tool.pylint.similarities]
+min-similarity-lines = 8
+ignore-imports = true
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

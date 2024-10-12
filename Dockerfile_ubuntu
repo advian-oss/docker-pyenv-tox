@@ -3,7 +3,7 @@
 # Pynv but no environments #
 ############################
 # NOTE: If you change the image version change it also in create_builds.py
-ARG IMAGE_VERSION=focal
+ARG IMAGE_VERSION=noble
 FROM ubuntu:$IMAGE_VERSION as pyenv_clean
 ENV CFLAGS='-O2' \
     DEBIAN_FRONTEND=noninteractive
@@ -21,6 +21,11 @@ RUN apt-get update \
        openssh-client \
        libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget \
        libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev \
+    # No recent enough Rust in Ubuntu focal packages
+    && curl -o /tmp/rustup.sh --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+    && chmod +x /tmp/rustup.sh \
+    && /tmp/rustup.sh -y \
+    && echo 'source "$HOME/.cargo/env"' >> /root/.profile \
     # githublab ssh
     && mkdir -p -m 0700 ~/.ssh && ssh-keyscan gitlab.com github.com | sort > ~/.ssh/known_hosts \
     # install pyenv
@@ -47,7 +52,7 @@ RUN cd /build \
 ###########################
 FROM pyenv_clean as pyenv_prebuild
 COPY --from=pyenv_resolve_build /root/.cargo /root/.cargo
-ARG BUILD_PYTHON_VERSIONS="3.11 3.10 3.9 3.8"
+ARG BUILD_PYTHON_VERSIONS="3.11 3.12 3.13 3.10 3.9"
 RUN export RESOLVED_VERSIONS=`pyenv_resolve $BUILD_PYTHON_VERSIONS` \
     && for pyver in $RESOLVED_VERSIONS; do pyenv install $pyver; done \
     && pyenv global $RESOLVED_VERSIONS
