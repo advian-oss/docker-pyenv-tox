@@ -11,7 +11,6 @@ ENV CFLAGS='-O2' \
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        bash \
-       cargo \
        curl \
        ca-certificates \
        git-core \
