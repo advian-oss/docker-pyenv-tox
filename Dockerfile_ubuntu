@@ -37,6 +37,8 @@ RUN apt-get update \
 SHELL ["/bin/bash", "-lc"]
 ENTRYPOINT ["/bin/bash", "-lc"]
 
+RUN pyenv install -l
+
 ##############################
 # Build the version resolver #
 ##############################
