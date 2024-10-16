@@ -28,7 +28,9 @@ RUN apt-get update \
     # githublab ssh
     && mkdir -p -m 0700 ~/.ssh && ssh-keyscan gitlab.com github.com | sort > ~/.ssh/known_hosts \
     # install pyenv
-    && curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
+    && curl -o /tmp/pyenv_setup.sh --proto '=https' --tlsv1.2 -sSfL https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer \
+    && chmod +x /tmp/pyenv_setup.sh \
+    && /tmp/pyenv_setup.sh \
     && echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.profile \
     && echo 'export PATH="$PYENV_ROOT/bin:$HOME/.cargo/bin:$PATH"' >> ~/.profile \
     && echo 'eval "$(pyenv init --path)"' >> ~/.profile \
