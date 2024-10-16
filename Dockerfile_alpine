@@ -22,8 +22,9 @@ RUN apk add --no-cache \
     && mkdir -p -m 0700 ~/.ssh && ssh-keyscan gitlab.com github.com | sort > ~/.ssh/known_hosts \
     # install pyenv
     && curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
-    && echo 'export PATH="/root/.pyenv/bin:/root/.cargo/bin:$PATH"' >> /root/.profile \
-    && echo 'eval "$(pyenv init --path)"' >> /root/.profile \
+    && echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.profile \
+    && echo 'export PATH="$PYENV_ROOT/bin:$HOME/.cargo/bin:$PATH"' >> ~/.profile \
+    && echo 'eval "$(pyenv init --path)"' >> ~/.profile \
     && true
 
 SHELL ["/bin/bash", "-lc"]
@@ -63,7 +64,7 @@ FROM pyenv as tox-base
 COPY docker-entrypoint-tox.sh /
 RUN python -m pip install -U tox \
     && curl -sSL https://install.python-poetry.org | python3 - \
-    && echo 'export PATH="/root/.local/bin:$PATH"' >> /root/.profile \
+    && echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.profile \
     && true
 ONBUILD COPY . /app
 WORKDIR /app
