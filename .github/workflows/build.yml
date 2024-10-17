@@ -51,7 +51,7 @@ jobs:
       - name: Bake pyenv
         run: |
           docker buildx bake --pull --provenance=true --sbom=true --push --file ./pyenv.hcl
-
+# FIXME: How to copy the buildx cache between jobs ?
   bake_tox:
     runs-on: ubuntu-latest
     needs: bake_pyenv
