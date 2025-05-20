@@ -14,7 +14,7 @@ RUN apt-get update \
        bash \
        curl \
        ca-certificates \
-       git-core \
+       git \
        make \
        llvm \
        build-essential \
