@@ -58,7 +58,7 @@ available on the host:
     ./create_builds.py pyenv > pyenv.hcl
     ./create_builds.py tox-base > tox-base.hcl
     docker login
-    docker buildx bake --pull --push --file ./pyenv.hcl
-    docker buildx bake --pull --push --file ./tox-base.hcl
+    docker buildx bake --pull --push --file ./pyenv.hcl  --provenance=true --sbom=true
+    docker buildx bake --pull --push --file ./tox-base.hcl --provenance=true --sbom=true
 
 The `create_builds.py` script output includes the Docker commands above as HCL file comments.

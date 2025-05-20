@@ -10,8 +10,8 @@ ENV CFLAGS='-O2' \
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       bash \
        cargo \
+       bash \
        curl \
        ca-certificates \
        git-core \
@@ -21,21 +21,21 @@ RUN apt-get update \
        openssh-client \
        libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget \
        libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev \
-    # No recent enough Rust in Ubuntu focal packages
-    && curl -o /tmp/rustup.sh --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-    && chmod +x /tmp/rustup.sh \
-    && /tmp/rustup.sh -y \
-    && echo 'source "$HOME/.cargo/env"' >> /root/.profile \
     # githublab ssh
     && mkdir -p -m 0700 ~/.ssh && ssh-keyscan gitlab.com github.com | sort > ~/.ssh/known_hosts \
     # install pyenv
-    && curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash \
-    && echo 'export PATH="/root/.pyenv/bin:/root/.cargo/bin:$PATH"' >> /root/.profile \
-    && echo 'eval "$(pyenv init --path)"' >> /root/.profile \
+    && curl -o /tmp/pyenv_setup.sh --keepalive-time 900 --proto '=https' --tlsv1.2 -vsSfL https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer \
+    && chmod +x /tmp/pyenv_setup.sh \
+    && /tmp/pyenv_setup.sh \
+    && echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.profile \
+    && echo 'export PATH="$PYENV_ROOT/bin:$HOME/.cargo/bin:$PATH"' >> ~/.profile \
+    && echo 'eval "$(pyenv init --path)"' >> ~/.profile \
     && true
 
 SHELL ["/bin/bash", "-lc"]
 ENTRYPOINT ["/bin/bash", "-lc"]
+
+RUN pyenv install -l
 
 ##############################
 # Build the version resolver #
@@ -70,7 +70,7 @@ FROM pyenv as tox-base
 COPY docker-entrypoint-tox.sh /
 RUN python -m pip install -U tox \
     && curl -sSL https://install.python-poetry.org | python3 - \
-    && echo 'export PATH="/root/.local/bin:$PATH"' >> /root/.profile \
+    && echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.profile \
     && true
 ONBUILD COPY . /app
 WORKDIR /app
