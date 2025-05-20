@@ -14,6 +14,7 @@ DISTRO_DEFAULT_VERSIONS = {
     "debian": "bookworm",
     "ubuntu": "noble",
 }
+BUILD_PYTHON_VERSIONS = "3.11 3.12 3.13 3.10 3.9"
 
 
 def print_bakefile(reponame: str, target: str) -> None:
@@ -33,6 +34,7 @@ target "{target}-{variant.replace(".","")}" {{
     target = "{target}"
     args = {{
         IMAGE_VERSION = "{version}"
+        BUILD_PYTHON_VERSIONS = "{BUILD_PYTHON_VERSIONS}"
     }}
     tags = [{distrotag}"{reponame}/{target}:{distro}-{version}", "{reponame}/{target}:{distro}-{version}-{isodate}"]
 }}
