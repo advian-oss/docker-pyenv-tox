@@ -37,7 +37,7 @@ RUN pyenv install -l
 ##############################
 # Build the version resolver #
 ##############################
-FROM pyenv_clean as pyenv_resolve_build
+FROM rust:1-alpine$IMAGE_VERSION as pyenv_resolve_build
 COPY pyenv_resolve /build
 RUN cd /build \
     && cargo build --release \
@@ -48,7 +48,7 @@ RUN cd /build \
 # Prebuild given versions #
 ###########################
 FROM pyenv_clean as pyenv_prebuild
-COPY --from=pyenv_resolve_build /root/.cargo /root/.cargo
+COPY --from=pyenv_resolve_build /usr/local/cargo/bin/pyenv_resolve /usr/local/bin/pyenv_resolve
 ARG BUILD_PYTHON_VERSIONS="3.11 3.12 3.13 3.10 3.9"
 RUN export RESOLVED_VERSIONS=`pyenv_resolve $BUILD_PYTHON_VERSIONS` \
     && echo RESOLVED_VERSIONS=$RESOLVED_VERSIONS \
