@@ -21,7 +21,7 @@ def print_bakefile(reponame: str, target: str) -> None:
     """Print the bakefile"""
     hcl_targets = ""
     for variant in VARIANTS:
-        isodate = datetime.datetime.utcnow().date().isoformat()
+        isodate = datetime.datetime.now(datetime.UTC).date().isoformat()
         distro, version = variant.split("-")
         distrotag = ""
         if version == DISTRO_DEFAULT_VERSIONS[distro]:
