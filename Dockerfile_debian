@@ -44,7 +44,7 @@ RUN pyenv install -l
 ##############################
 # Build the version resolver #
 ##############################
-FROM rust:1-$IMAGE_VERSION as pyenv_resolve_build
+FROM rust:1.87-slim-$IMAGE_VERSION as pyenv_resolve_build
 COPY pyenv_resolve /build
 RUN cd /build \
     && cargo build --release \
