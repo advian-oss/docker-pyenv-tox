@@ -14,7 +14,7 @@ DISTRO_DEFAULT_VERSIONS = {
     "debian": "bookworm",
     "ubuntu": "noble",
 }
-BUILD_PYTHON_VERSIONS = "3.11 3.12 3.13 3.10 3.9"
+BUILD_PYTHON_VERSIONS = "3.11 3.12 3.13"
 
 
 def print_bakefile(reponame: str, target: str) -> None:
