@@ -6,21 +6,22 @@ import datetime
 
 PLATFORMS = ["linux/amd64", "linux/arm64"]
 TARGETS = ["pyenv", "tox-base"]
-VARIANTS = ["alpine-3.19", "debian-bullseye", "ubuntu-jammy"]
-VARIANTS += ["alpine-3.20", "debian-bookworm", "ubuntu-noble"]
+VARIANTS = ["alpine-3.20", "debian-bullseye", "ubuntu-jammy"]
+VARIANTS += ["alpine-3.21", "debian-bookworm", "ubuntu-noble"]
 # Which distro version gets the distro name tag
 DISTRO_DEFAULT_VERSIONS = {
-    "alpine": "3.20",
+    "alpine": "3.21",
     "debian": "bookworm",
     "ubuntu": "noble",
 }
+BUILD_PYTHON_VERSIONS = "3.11 3.12 3.13"
 
 
 def print_bakefile(reponame: str, target: str) -> None:
     """Print the bakefile"""
     hcl_targets = ""
     for variant in VARIANTS:
-        isodate = datetime.datetime.utcnow().date().isoformat()
+        isodate = datetime.datetime.now(datetime.UTC).date().isoformat()
         distro, version = variant.split("-")
         distrotag = ""
         if version == DISTRO_DEFAULT_VERSIONS[distro]:
@@ -33,6 +34,7 @@ target "{target}-{variant.replace(".","")}" {{
     target = "{target}"
     args = {{
         IMAGE_VERSION = "{version}"
+        BUILD_PYTHON_VERSIONS = "{BUILD_PYTHON_VERSIONS}"
     }}
     tags = [{distrotag}"{reponame}/{target}:{distro}-{version}", "{reponame}/{target}:{distro}-{version}-{isodate}"]
 }}
