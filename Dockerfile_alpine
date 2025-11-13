@@ -14,7 +14,7 @@ RUN apk add --no-cache \
         bash \
         openssh-client \
         # PyEnv deps
-        bzip2-dev coreutils dpkg-dev dpkg expat-dev patch \
+        build-base bzip2-dev coreutils dpkg-dev dpkg expat-dev patch \
         findutils gcc gdbm-dev libc-dev libffi-dev libnsl-dev libtirpc-dev \
         linux-headers make ncurses-dev openssl-dev pax-utils readline-dev \
         sqlite-dev tcl-dev tk tk-dev util-linux-dev xz-dev zlib-dev \
@@ -37,9 +37,10 @@ RUN pyenv install -l
 ##############################
 # Build the version resolver #
 ##############################
-FROM pyenv_clean as pyenv_resolve_build
+FROM rust:1.87-alpine$IMAGE_VERSION as pyenv_resolve_build
 COPY pyenv_resolve /build
-RUN cd /build \
+RUN apk add --no-cache musl-dev \
+    && cd /build \
     && cargo build --release \
     && cargo install --path . \
     && true
@@ -48,7 +49,7 @@ RUN cd /build \
 # Prebuild given versions #
 ###########################
 FROM pyenv_clean as pyenv_prebuild
-COPY --from=pyenv_resolve_build /root/.cargo /root/.cargo
+COPY --from=pyenv_resolve_build /usr/local/cargo/bin/pyenv_resolve /usr/local/bin/pyenv_resolve
 ARG BUILD_PYTHON_VERSIONS="3.11 3.12 3.13 3.10 3.9"
 RUN export RESOLVED_VERSIONS=`pyenv_resolve $BUILD_PYTHON_VERSIONS` \
     && echo RESOLVED_VERSIONS=$RESOLVED_VERSIONS \
