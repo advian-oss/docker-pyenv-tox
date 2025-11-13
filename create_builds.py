@@ -6,11 +6,11 @@ import datetime
 
 PLATFORMS = ["linux/amd64", "linux/arm64"]
 TARGETS = ["pyenv", "tox-base"]
-VARIANTS = ["alpine-3.20", "debian-bullseye", "ubuntu-jammy"]
-VARIANTS += ["alpine-3.21", "debian-bookworm", "ubuntu-noble"]
+VARIANTS = ["alpine-3.21", "debian-bullseye", "ubuntu-jammy"]
+VARIANTS += ["alpine-3.22", "debian-bookworm", "ubuntu-noble"]
 # Which distro version gets the distro name tag
 DISTRO_DEFAULT_VERSIONS = {
-    "alpine": "3.21",
+    "alpine": "3.22",
     "debian": "bookworm",
     "ubuntu": "noble",
 }
