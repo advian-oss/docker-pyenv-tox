@@ -3,7 +3,7 @@
 # Pynv but no environments #
 ############################
 # NOTE: If you change the image version change it also in create_builds.py
-ARG IMAGE_VERSION=bookworm
+ARG IMAGE_VERSION=trixie
 FROM debian:$IMAGE_VERSION-slim as pyenv_clean
 ENV CFLAGS='-O2' \
     DEBIAN_FRONTEND=noninteractive
@@ -44,7 +44,7 @@ RUN pyenv install -l
 ##############################
 # Build the version resolver #
 ##############################
-FROM rust:1.87-slim-$IMAGE_VERSION as pyenv_resolve_build
+FROM rust:1-slim-$IMAGE_VERSION as pyenv_resolve_build
 COPY pyenv_resolve /build
 RUN cd /build \
     && cargo build --release \
