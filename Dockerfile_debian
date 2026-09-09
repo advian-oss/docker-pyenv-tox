@@ -44,18 +44,44 @@ RUN pyenv install -l
 ##############################
 # Build the version resolver #
 ##############################
-FROM rust:1-slim-$IMAGE_VERSION as pyenv_resolve_build
+FROM --platform=$BUILDPLATFORM rust:1-slim-bookworm AS pyenv_resolve_build
+
+ARG TARGETARCH
+
+RUN apt-get update \
+    && case "$TARGETARCH" in \
+         amd64) \
+           apt-get install -y --no-install-recommends \
+             gcc-x86-64-linux-gnu \
+             libc6-dev-amd64-cross \
+           && rustup target add x86_64-unknown-linux-gnu ;; \
+         arm64) \
+           apt-get install -y --no-install-recommends \
+             gcc-aarch64-linux-gnu \
+             libc6-dev-arm64-cross \
+           && rustup target add aarch64-unknown-linux-gnu ;; \
+         *) echo "Unsupported TARGETARCH=$TARGETARCH" >&2; exit 1 ;; \
+       esac \
+    && rm -rf /var/lib/apt/lists/*
 COPY pyenv_resolve /build
-RUN cd /build \
-    && cargo build --release \
-    && cargo install --path . \
-    && true
+WORKDIR /build
+
+RUN case "$TARGETARCH" in \
+      amd64) \
+        export RUST_TARGET=x86_64-unknown-linux-gnu \
+               CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=x86_64-linux-gnu-gcc ;; \
+      arm64) \
+        export RUST_TARGET=aarch64-unknown-linux-gnu \
+               CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc ;; \
+    esac \
+    && cargo build --release --target "$RUST_TARGET" \
+    && cp "target/$RUST_TARGET/release/pyenv_resolve" /usr/local/bin/pyenv_resolve
 
 ###########################
 # Prebuild given versions #
 ###########################
 FROM pyenv_clean as pyenv_prebuild
-COPY --from=pyenv_resolve_build /usr/local/cargo/bin/pyenv_resolve /usr/local/bin/pyenv_resolve
+COPY --from=pyenv_resolve_build /usr/local/bin/pyenv_resolve /usr/local/bin/pyenv_resolve
 ARG BUILD_PYTHON_VERSIONS="3.11 3.12 3.13 3.10 3.9"
 RUN export RESOLVED_VERSIONS=`pyenv_resolve $BUILD_PYTHON_VERSIONS` \
     && for pyver in $RESOLVED_VERSIONS; do pyenv install $pyver; done \
