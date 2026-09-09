@@ -44,7 +44,7 @@ In order to be able to build images for foreign architectures, the `linuxkit/bin
 image should pulled and run. This will make [`qemu-user-static`](https://github.com/multiarch/qemu-user-static)
 available on the host:
 
-    docker run --rm --privileged linuxkit/binfmt:bebbae0c1100ebf7bf2ad4dfb9dfd719cf0ef132  # latest as of 2022-11-15
+    docker run --rm --privileged docker pull linuxkit/binfmt:v1.3.0  # latest as of 2026-01-15
 
 ### Create/refresh a "builder" instance
 
