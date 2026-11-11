@@ -14,7 +14,7 @@ DISTRO_DEFAULT_VERSIONS = {
     "debian": "trixie",
     "ubuntu": "resolute",
 }
-BUILD_PYTHON_VERSIONS = "3.12 3.13 3.14"
+BUILD_PYTHON_VERSIONS = "3.12 3.13 3.14 3.15"
 
 
 def print_bakefile(reponame: str, target: str) -> None:
