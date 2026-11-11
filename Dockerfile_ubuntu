@@ -3,7 +3,7 @@
 # Pynv but no environments #
 ############################
 ARG IMAGE_VERSION
-FROM ubuntu:$IMAGE_VERSION as pyenv_clean
+FROM ubuntu:$IMAGE_VERSION AS pyenv_clean
 ARG CACHE_EPOCH
 ENV CFLAGS='-O2' \
     DEBIAN_FRONTEND=noninteractive
@@ -80,7 +80,7 @@ RUN case "$TARGETARCH" in \
 ###########################
 # Prebuild given versions #
 ###########################
-FROM pyenv_clean as pyenv_prebuild
+FROM pyenv_clean AS pyenv_prebuild
 COPY --from=pyenv_resolve_build /usr/local/bin/pyenv_resolve /usr/local/bin/pyenv_resolve
 ARG BUILD_PYTHON_VERSIONS
 RUN RESOLVED_VERSIONS=$(pyenv_resolve $BUILD_PYTHON_VERSIONS) \
@@ -90,13 +90,13 @@ RUN RESOLVED_VERSIONS=$(pyenv_resolve $BUILD_PYTHON_VERSIONS) \
 ####################################
 # Pyenv shell with default version #
 ####################################
-FROM pyenv_prebuild as pyenv
+FROM pyenv_prebuild AS pyenv
 CMD ["python"]
 
 ###############################
 # tox and poetry preinstalled #
 ###############################
-FROM pyenv as tox-base
+FROM pyenv AS tox-base
 COPY docker-entrypoint-tox.sh /
 RUN python -m pip install -U tox \
     && curl -LsSf https://astral.sh/uv/install.sh | sh \
