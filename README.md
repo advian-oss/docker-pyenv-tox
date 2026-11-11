@@ -38,27 +38,65 @@ This repo also has a minimal Python package and tox config for quick-testing
 
 It should be available as part of standard Docker packages these days.
 
-### Enable `linuxkit/binfmt`
+### Create a local builder
 
-In order to be able to build images for foreign architectures, the `linuxkit/binfmt`
-image should pulled and run. This will make [`qemu-user-static`](https://github.com/multiarch/qemu-user-static)
-available on the host:
+Registry cache export requires a `docker-container` Buildx driver. Create a builder once:
 
-    docker run --rm --privileged docker pull linuxkit/binfmt:v1.3.0  # latest as of 2026-01-15
+```sh
+docker buildx create --name toxbuilder --driver docker-container --config "$(pwd)/buildkitd.toml"
+docker buildx use toxbuilder
+docker buildx inspect --bootstrap
+```
 
-### Create/refresh a "builder" instance
+### Generate a Bake file
 
-    docker buildx rm toxbuilder ; docker buildx create --name toxbuilder --config `pwd`/buildkitd.toml
-    docker buildx use toxbuilder
-    docker buildx inspect --bootstrap
+The generated Bake file includes all distro variants and imports the public registry cache by default.
+`DHUBREPO` selects the image namespace; the cache repository defaults to `${DHUBREPO}/buildcache`.
 
-### Build and push
+```sh
+export DHUBREPO=advian
+./create_builds.py all > docker-bake.hcl
+docker login
+```
 
-    export DHUBREPO=myrepo
-    ./create_builds.py pyenv > pyenv.hcl
-    ./create_builds.py tox-base > tox-base.hcl
-    docker login
-    docker buildx bake --pull --push --file ./pyenv.hcl  --provenance=true --sbom=true
-    docker buildx bake --pull --push --file ./tox-base.hcl --provenance=true --sbom=true
+`all` builds both `pyenv` and `tox-base` targets in one Bake invocation, allowing BuildKit to share
+their common stages. `./create_builds.py pyenv` and `./create_builds.py tox-base` remain available
+when only one image family is needed.
 
-The `create_builds.py` script output includes the Docker commands above as HCL file comments.
+### Build locally using the shared cache
+
+Choose the architecture of the local machine so the image can be loaded directly without emulation.
+For example, on Apple Silicon:
+
+```sh
+BUILD_ARCH=arm64 docker buildx bake tox-base-debian-trixie --load --file ./docker-bake.hcl
+```
+
+Use `BUILD_ARCH=amd64` on an amd64 machine. Replace the target with e.g. `pyenv-debian-trixie` or
+another generated target as needed. Bake imports the matching and opposite-architecture cache refs;
+BuildKit reuses the compatible layers, while the local builder also retains its own cache between runs.
+
+To build and push the full multi-platform image set from a machine that supports both architectures:
+
+```sh
+docker buildx bake --pull --push --provenance=true --sbom=true --file ./docker-bake.hcl
+```
+
+### Cache refresh and publishing
+
+The CI workflow builds natively on amd64 and arm64 runners and exports `mode=max` cache from each
+`tox-base` target to `${DHUBREPO}/buildcache:<variant>-<architecture>`. Those public cache refs are
+shared with local builds. Publishing cache requires Docker Hub write access; local builds only need
+read access. To seed or update a cache from a local machine, run the target for that machine's native
+architecture with `CACHE_PUSH=true` (this builds the image layers and exports cache, without publishing
+the tagged image):
+
+```sh
+BUILD_ARCH=arm64 CACHE_PUSH=true docker buildx bake tox-base-debian-trixie --file ./docker-bake.hcl
+```
+
+`CACHE_EPOCH` defaults to the ISO week of `BUILD_DATE`, so the expensive package and Python build
+stages are reused within a week and refreshed in the next one. CI passes a single `BUILD_DATE` to its
+build and merge jobs to keep dated tags consistent. Override `BUILD_DATE` when generating a Bake file
+for a specific release date, or set `CACHE_EPOCH` explicitly to force a cache refresh or match CI
+across a week boundary. Changing the epoch invalidates the cached `pyenv_clean` build steps.
