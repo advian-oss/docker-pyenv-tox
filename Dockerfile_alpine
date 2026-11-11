@@ -62,7 +62,7 @@ COPY --from=pyenv_resolve_build /usr/local/bin/pyenv_resolve /usr/local/bin/pyen
 ARG BUILD_PYTHON_VERSIONS
 RUN export RESOLVED_VERSIONS=`pyenv_resolve $BUILD_PYTHON_VERSIONS` \
     && echo RESOLVED_VERSIONS=$RESOLVED_VERSIONS \
-    && for pyver in $RESOLVED_VERSIONS; do pyenv install $pyver; done \
+    && for pyver in $RESOLVED_VERSIONS; do pyenv install "$pyver" || exit 1; done \
     && pyenv global $RESOLVED_VERSIONS
 
 ####################################

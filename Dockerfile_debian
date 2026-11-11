@@ -19,6 +19,7 @@ RUN apt-get update \
        openssh-client \
        libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget \
        libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev \
+    && rm -rf /var/lib/apt/lists/* \
     # No recent enough Rust in Debian buster packages
     && curl -o /tmp/rustup.sh --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
     && chmod +x /tmp/rustup.sh \
@@ -83,7 +84,7 @@ FROM pyenv_clean as pyenv_prebuild
 COPY --from=pyenv_resolve_build /usr/local/bin/pyenv_resolve /usr/local/bin/pyenv_resolve
 ARG BUILD_PYTHON_VERSIONS
 RUN export RESOLVED_VERSIONS=`pyenv_resolve $BUILD_PYTHON_VERSIONS` \
-    && for pyver in $RESOLVED_VERSIONS; do pyenv install $pyver; done \
+    && for pyver in $RESOLVED_VERSIONS; do pyenv install "$pyver" || exit 1; done \
     && pyenv global $RESOLVED_VERSIONS
 
 ####################################
