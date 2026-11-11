@@ -4,9 +4,11 @@
 ############################
 ARG IMAGE_VERSION
 FROM alpine:$IMAGE_VERSION as pyenv_clean
+ARG CACHE_EPOCH
 ENV CFLAGS='-O2'
 
-RUN apk add --no-cache \
+RUN printf 'Cache epoch: %s\n' "$CACHE_EPOCH" > /dev/null \
+    && apk add --no-cache \
         cargo \
         curl \
         git \

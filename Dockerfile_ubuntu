@@ -4,10 +4,12 @@
 ############################
 ARG IMAGE_VERSION
 FROM ubuntu:$IMAGE_VERSION as pyenv_clean
+ARG CACHE_EPOCH
 ENV CFLAGS='-O2' \
     DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update \
+RUN printf 'Cache epoch: %s\n' "$CACHE_EPOCH" > /dev/null \
+    && apt-get update \
     && apt-get install -y --no-install-recommends \
        cargo \
        bash \
