@@ -103,7 +103,11 @@ fn main() {
             selected_ver = check_ver_avail.clone();
         }
         if selected_ver.patch == wanted_ver.patch && selected_ver.pre == wanted_ver.pre {
-            panic!("Selected version equals wanted version, this should not happen!");
+            eprintln!(
+                "pyenv_resolve: no stable Python {}.{} found in installed or available versions; update pyenv (pyenv update) or request an explicit prerelease version",
+                wanted_ver.major, wanted_ver.minor
+            );
+            std::process::exit(1);
         }
         resolved_versions.push(selected_ver);
     }

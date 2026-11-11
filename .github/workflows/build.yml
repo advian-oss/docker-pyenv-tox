@@ -1,116 +1,118 @@
+name: Build and publish images
+
 on:
   push:
     branches:
       - 'master'
-  workflow_dispatch:  # Allow manual triggering
+  workflow_dispatch:
 
 jobs:
-  bake_pyenv:
+  prepare:
     runs-on: ubuntu-24.04
+    outputs:
+      build_date: ${{ steps.date.outputs.build_date }}
+    steps:
+      - name: Set build date
+        id: date
+        run: echo "build_date=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
     steps:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
+        continue-on-error: true
         timeout-minutes: 20
         with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
           tool-cache: true
           android: true
           dotnet: true
           haskell: true
           large-packages: true
-          docker-images: true  # we want to re-download freshest layers anyway
+          docker-images: true
           swap-storage: true
-      -
-        name: Checkout
-        timeout-minutes: 20
+
+      - name: Checkout
         uses: actions/checkout@v4
-      -
-        name: Set up QEMU
-        timeout-minutes: 60
-        uses: docker/setup-qemu-action@v3
-      -
-        name: Set up Docker Buildx
-        timeout-minutes: 20
+
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
           buildkitd-config: ./buildkitd.toml
-      -
-        name: Login to DockerHub
-        timeout-minutes: 5
+
+      - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Python
-        timeout-minutes: 5
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
 
-      - name: Create bakefiles
-        timeout-minutes: 5
-        run: |
-          export DHUBREPO=advian
-          ./create_builds.py pyenv > pyenv.hcl
+      - name: Create Bake file
+        env:
+          BUILD_DATE: ${{ needs.prepare.outputs.build_date }}
+          DHUBREPO: advian
+        run: ./create_builds.py all > docker-bake.hcl
 
-      - name: Bake pyenv
-        timeout-minutes: 1440
-        run: |
-          docker buildx bake --pull --provenance=true --sbom=true --push --file ./pyenv.hcl
-# FIXME: How to copy the buildx cache between jobs ?
-  bake_tox:
-    runs-on: ubuntu-latest
-    needs: bake_pyenv
+      - name: Bake native architecture images
+        env:
+          BUILD_ARCH: ${{ matrix.arch }}
+          BUILD_DATE: ${{ needs.prepare.outputs.build_date }}
+          PUSH_BY_DIGEST: "true"
+          CACHE_PUSH: "true"
+        run: >-
+          docker buildx bake --pull --provenance=true --sbom=true
+          --metadata-file meta-${{ matrix.arch }}.json
+          --file ./docker-bake.hcl
+
+      - name: Upload build metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: meta-${{ matrix.arch }}
+          path: meta-${{ matrix.arch }}.json
+          if-no-files-found: error
+
+  merge:
+    runs-on: ubuntu-24.04
+    needs: [prepare, build]
     steps:
-      - name: Free Disk Space (Ubuntu)
-        timeout-minutes: 20
-        uses: jlumbroso/free-disk-space@main
-        with:
-          # this might remove tools that are actually needed,
-          # if set to "true" but frees about 6 GB
-          tool-cache: true
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: true
-          docker-images: true  # we want to re-download freshest layers anyway
-          swap-storage: true
-      -
-        name: Checkout
-        timeout-minutes: 20
+      - name: Checkout
         uses: actions/checkout@v4
-      -
-        name: Set up QEMU
-        timeout-minutes: 60
-        uses: docker/setup-qemu-action@v3
-      -
-        name: Set up Docker Buildx
-        timeout-minutes: 20
+
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          buildkitd-config: ./buildkitd.toml
-      -
-        name: Login to DockerHub
-        timeout-minutes: 5
+
+      - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Python
-        timeout-minutes: 5
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
 
-      - name: Create bakefiles
-        timeout-minutes: 5
-        run: |
-          export DHUBREPO=advian
-          ./create_builds.py tox-base > tox-base.hcl
-      - name: Bake pyenv
-        timeout-minutes: 1440
-        run: |
-          docker buildx bake --pull --provenance=true --sbom=true --push --file ./tox-base.hcl
+      - name: Download build metadata
+        uses: actions/download-artifact@v4
+        with:
+          pattern: meta-*
+          merge-multiple: true
+
+      - name: Create multi-architecture manifests
+        env:
+          BUILD_DATE: ${{ needs.prepare.outputs.build_date }}
+          DHUBREPO: advian
+        run: ./create_builds.py merge meta-amd64.json meta-arm64.json
