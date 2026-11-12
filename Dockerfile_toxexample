@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1.1.7-experimental
 # Example how to use the tox-base image
 FROM advian/tox-base:alpine AS tox
-ARG PYTHON_VERSIONS="3.15 3.14 3.13"
-ARG POETRY_VERSION="2.4.2"
+ARG PYTHON_VERSIONS="3.14 3.15"
+ARG POETRY_VERSION="2.5.1"
 #FROM advian/tox-base:debian AS tox
 #FROM advian/tox-base:ubuntu AS tox
 RUN pyenv update \
