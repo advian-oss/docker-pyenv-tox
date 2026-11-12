@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "toxtest"
-version = "0.2.0"
+version = "0.3.0"
 description = "Tox needs a python project"
 authors = ["Eero af Heurlin <eero.afheurlin@advian.fi>", "Joni Kähärä <joni.kahara@advian.fi>"]
 
